@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>四邊形家族魔法屋 | Quadrilateral Family Magic House</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --secondary: #2ecc71;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --active-bg: #e8f4fd;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft JhengHei', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #f0f3f6;
+            color: var(--dark);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            font-size: 20px;
+            color: var(--dark);
+        }
+
+        .lang-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .lang-btn:hover {
+            background-color: #357abd;
+        }
+
+        .main-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .left-panel {
+            flex: 1 1 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .right-panel {
+            flex: 1 1 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--primary);
+            padding-left: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            height: 360px;
+            background-color: #fafafa;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            touch-action: none; /* 防止手機拖動時觸發滾動 */
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px;
+            font-size: 13px;
+            font-weight: bold;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn:active, .btn:hover {
+            background: var(--active-bg);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .checklist-item.active {
+            background-color: #e8f8f0;
+            color: #1e7e34;
+            font-weight: bold;
+        }
+
+        .checkbox-icon {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .identity-tag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background-color: #eee;
+            color: #888;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .identity-tag.active {
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .identity-tag.active.quad { background-color: #7f8c8d; }
+        .identity-tag.active.trapezoid { background-color: #e67e22; }
+        .identity-tag.active.parallelogram { background-color: #9b59b6; }
+        .identity-tag.active.rectangle { background-color: #3498db; }
+        .identity-tag.active.rhombus { background-color: #f1c40f; color: #333; }
+        .identity-tag.active.square { background-color: #2ecc71; }
+
+        /* Venn Diagram Styling */
+        .venn-container {
+            width: 100%;
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .venn-svg {
+            width: 100%;
+            max-width: 380px;
+            height: auto;
+        }
+
+        .venn-area {
+            fill-opacity: 0.15;
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+
+        .venn-text {
+            font-size: 11px;
+            font-weight: bold;
+            pointer-events: none;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        /* Dynamic venn active styles */
+        .venn-area.active {
+            fill-opacity: 0.65 !important;
+            stroke-width: 3px !important;
+            filter: drop-shadow(0px 0px 4px rgba(0,0,0,0.2));
+        }
+
+        .mission-box {
+            background: var(--active-bg);
+            border: 1px solid #bce0fd;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .mission-text {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .mission-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .verify-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 18px; }
+            #canvas-container { height: 300px; }
+            body { padding: 8px; }
+            header { padding: 10px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 id="app-title">四邊形家族魔法屋 🪄</h1>
+        <button class="lang-btn" id="lang-toggle-btn" onclick="toggleLanguage()">English</button>
+    </header>
+
+    <div class="main-container">
+        <!-- Left Panel: Canvas and Presets -->
+        <div class="left-panel">
+            <div class="card">
+                <div class="card-title">
+                    <span id="title-canvas">🪄 魔法畫布 (拖拽圓點變形)</span>
+                </div>
+                <div id="canvas-container">
+                    <canvas id="geometryCanvas"></canvas>
+                </div>
+                <div class="hint" id="canvas-hint">* 提示：你可以自由拖動四個紅色的頂點。當內角接近 90° 時會自動觸發直角符號（∟）。</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" id="title-presets">✨ 一鍵完美變身</div>
+                <div class="controls">
+                    <button class="btn" onclick="setPreset('square')" id="btn-square">正方形</button>
+                    <button class="btn" onclick="setPreset('rectangle')" id="btn-rectangle">長方形</button>
+                    <button class="btn" onclick="setPreset('rhombus')" id="btn-rhombus">菱形</button>
+                    <button class="btn" onclick="setPreset('parallelogram')" id="btn-parallelogram">平行四邊形</button>
+                    <button class="btn" onclick="setPreset('trapezoid')" id="btn-trapezoid">梯形</button>
+                    <button class="btn" onclick="setPreset('general')" id="btn-general">任意四邊形</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Checklist, Venn Diagram & Missions -->
+        <div class="right-panel">
+            <div class="card">
+                <div class="card-title" id="title-checklist">🔍 幾何特徵實時掃描</div>
+                <div id="checklist">
+                    <div class="checklist-item" id="check-para1">
+                        <span class="checkbox-icon" id="icon-para1">⬜</span>
+                        <span id="text-para1">只有一組對邊平行</span>
+                    </div>
+                    <div class="checklist-item" id="check-para2">
+                        <span class="checkbox-icon" id="icon-para2">⬜</span>
+                        <span id="text-para2">兩組對邊分別平行</span>
+                    </div>
+                    <div class="checklist-item" id="check-eq-sides">
+                        <span class="checkbox-icon" id="icon-eq-sides">⬜</span>
+                        <span id="text-eq-sides">四條邊都一樣長</span>
+                    </div>
+                    <div class="checklist-item" id="check-right-angles">
+                        <span class="checkbox-icon" id="icon-right-angles">⬜</span>
+                        <span id="text-right-angles">四個角都是直角 (90°)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" id="title-identity">👑 家族 Venn Diagram 包含圖</div>
+                <div class="tag-container">
+                    <div class="identity-tag quad" id="tag-quad">四邊形</div>
+                    <div class="identity-tag trapezoid" id="tag-trapezoid">梯形</div>
+                    <div class="identity-tag parallelogram" id="tag-parallelogram">平行四邊形</div>
+                    <div class="identity-tag rectangle" id="tag-rectangle">長方形</div>
+                    <div class="identity-tag rhombus" id="tag-rhombus">菱形</div>
+                    <div class="identity-tag square" id="tag-square">正方形</div>
+                </div>
+
+                <!-- Interactive SVG Venn Diagram -->
+                <div class="venn-container">
+                    <svg class="venn-svg" viewBox="0 0 360 220">
+                        <!-- Outer Quad Box -->
+                        <rect id="v-quad" class="venn-area" x="5" y="5" width="350" height="210" rx="10" fill="#7f8c8d" stroke="#7f8c8d"/>
+                        <text x="20" y="22" class="venn-text" fill="#2c3e50" text-anchor="start" id="vtext-quad">四邊形</text>
+
+                        <!-- Trapezoid (Disjoint set within Quads) -->
+                        <rect id="v-trapezoid" class="venn-area" x="15" y="35" width="70" height="170" rx="8" fill="#e67e22" stroke="#e67e22"/>
+                        <text x="50" y="120" class="venn-text" fill="#d35400" id="vtext-trapezoid">梯形</text>
+
+                        <!-- Parallelogram Container -->
+                        <rect id="v-parallelogram" class="venn-area" x="95" y="35" width="250" height="170" rx="8" fill="#9b59b6" stroke="#9b59b6"/>
+                        <text x="220" y="52" class="venn-text" fill="#8e44ad" id="vtext-parallelogram">平行四邊形</text>
+
+                        <!-- Rectangle Circle -->
+                        <circle id="v-rectangle" class="venn-area" cx="170" cy="130" r="55" fill="#3498db" stroke="#3498db"/>
+                        <text x="145" y="130" class="venn-text" fill="#2980b9" id="vtext-rectangle">長方形</text>
+
+                        <!-- Rhombus Circle -->
+                        <circle id="v-rhombus" class="venn-area" cx="270" cy="130" r="55" fill="#f1c40f" stroke="#f1c40f"/>
+                        <text x="295" y="130" class="venn-text" fill="#f39c12" id="vtext-rhombus">菱形</text>
+
+                        <!-- Square Intersection Area -->
+                        <path id="v-square" class="venn-area" d="M 220,85 A 55,55 0 0,1 220,175 A 55,55 0 0,1 220,85 Z" fill="#2ecc71" stroke="#27ae60"/>
+                        <text x="220" y="130" class="venn-text" fill="#1e8449" id="vtext-square">正方形</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title" id="title-mission">🎮 魔法任務挑戰</div>
+                <div class="mission-box">
+                    <div class="mission-text" id="mission-content">任務載入中...</div>
+                    <div class="mission-nav">
+                        <button class="btn" style="padding: 6px 12px;" onclick="changeMission(-1)">⬅️</button>
+                        <button class="verify-btn" onclick="verifyMission()" id="btn-verify">驗證挑戰 Verify</button>
+                        <button class="btn" style="padding: 6px 12px;" onclick="changeMission(1)">➡️</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const i18n = {
+            'zh-HK': {
+                langBtn: 'English',
+                appTitle: '四邊形家族魔法屋 🪄',
+                titleCanvas: '🪄 魔法畫布 (拖拽圓點變形)',
+                canvasHint: '* 提示：你可以自由拖動四個紅色的頂點。當內角接近 90° 時會自動觸發直角符號（∟）。',
+                titlePresets: '✨ 一鍵完美變身',
+                btnSquare: '正方形',
+                btnRectangle: '長方形',
+                btnRhombus: '菱形',
+                btnParallelogram: '平行四邊形',
+                btnTrapezoid: '梯形',
+                btnGeneral: '任意四邊形',
+                titleChecklist: '🔍 幾何特徵實時掃描',
+                textPara1: '只有一組對邊平行',
+                textPara2: '兩組對邊分別平行',
+                textEqSides: '四條邊都一樣長',
+                textRightAngles: '四個角都是直角 (90°)',
+                titleIdentity: '👑 家族 Venn Diagram 包含圖',
+                tagQuad: '四邊形',
+                tagTrapezoid: '梯形',
+                tagParallelogram: '平行四邊形',
+                tagRectangle: '長方形',
+                tagRhombus: '菱形',
+                tagSquare: '正方形',
+                titleMission: '🎮 魔法任務挑戰',
+                verifyBtn: '驗證挑戰 🎯',
+                missions: [
+                    { text: "【任務一】尋找偽裝大師：請拉動圖形，讓它成為「平行四邊形」，但「絕對不能是長方形」！", type: "parallelogram_not_rect" },
+                    { text: "【任務二】解鎖全能王者：請拉動圖形，把圖形變身為完美的「正方形」，看看它在 Venn Diagram 上的核心區域亮起！", type: "is_square" },
+                    { text: "【任務三】神祕的梯形：請拉動圖形，讓它達成「只有一組對邊平行」的特殊條件！", type: "is_trapezoid" }
+                ],
+                success: "🎉 太棒了！挑戰成功！你完全掌握了這個圖形的祕密！",
+                fail: "❌ 還差一點點，再調整一下頂點試試看！檢查一下右邊的掃描清單喔。"
+            },
+            'en': {
+                langBtn: '中文',
+                appTitle: 'Quadrilateral Family Magic House 🪄',
+                titleCanvas: '🪄 Interactive Canvas (Drag points)',
+                canvasHint: '* Hint: Drag vertices freely. A right-angle symbol (∟) appears near 90°.',
+                titlePresets: '✨ Instant Magic Morph',
+                btnSquare: 'Square',
+                btnRectangle: 'Rectangle',
+                btnRhombus: 'Rhombus',
+                btnParallelogram: 'Parallelogram',
+                btnTrapezoid: 'Trapezoid',
+                btnGeneral: 'General Quad',
+                titleChecklist: '🔍 Feature Real-time Scanner',
+                textPara1: 'Only ONE pair of opposite sides is parallel',
+                textPara2: 'TWO pairs of opposite sides are parallel',
+                textEqSides: 'All 4 sides are equal in length',
+                textRightAngles: 'All 4 angles are right angles (90°)',
+                titleIdentity: '👑 Family Venn Diagram',
+                tagQuad: 'Quadrilateral',
+                tagTrapezoid: 'Trapezoid',
+                tagParallelogram: 'Parallelogram',
+                tagRectangle: 'Rectangle',
+                tagRhombus: 'Rhombus',
+                tagSquare: 'Square',
+                titleMission: '🎮 Magic Mission Challenge',
+                verifyBtn: 'Verify Challenge 🎯',
+                missions: [
+                    { text: "[Mission 1] Master of Disguise: Transform the shape into a 'Parallelogram', but NOT a 'Rectangle'!", type: "parallelogram_not_rect" },
+                    { text: "[Mission 2] Unlock All-Rounder: Make a perfect 'Square' and light up its Venn region!", type: "is_square" },
+                    { text: "[Mission 3] Mysterious Trapezoid: Transform so that 'only one pair of opposite sides is parallel'!", type: "is_trapezoid" }
+                ],
+                success: "🎉 Excellent! Challenge Successful!",
+                fail: "❌ Not quite there yet, tweak the points and try again!"
+            }
+        };
+
+        let currentLang = 'zh-HK';
+        let currentMissionIdx = 0;
+
+        const canvas = document.getElementById('geometryCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        function resizeCanvas() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        resizeCanvas();
+
+        let points = [
+            { x: 100, y: 80, isDragging: false },
+            { x: 260, y: 80, isDragging: false },
+            { x: 260, y: 220, isDragging: false },
+            { x: 100, y: 220, isDragging: false }
+        ];
+
+        const pointRadius = 12; // 加大便於手機觸控
+        let activePoint = null;
+
+        let currentFeatures = {
+            onePairParallel: false,
+            twoPairsParallel: false,
+            allSidesEqual: false,
+            allRightAngles: false
+        };
+
+        let currentIdentities = {
+            quad: true,
+            trapezoid: false,
+            parallelogram: false,
+            rectangle: false,
+            rhombus: false,
+            square: false
+        };
+
+        function setPreset(type) {
+            const w = canvas.width;
+            const h = canvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+
+            const presets = {
+                square: [ {x: cx-70, y: cy-70}, {x: cx+70, y: cy-70}, {x: cx+70, y: cy+70}, {x: cx-70, y: cy+70} ],
+                rectangle: [ {x: cx-110, y: cy-60}, {x: cx+110, y: cy-60}, {x: cx+110, y: cy+60}, {x: cx-110, y: cy+60} ],
+                rhombus: [ {x: cx, y: cy-80}, {x: cx+100, y: cy}, {x: cx, y: cy+80}, {x: cx-100, y: cy} ],
+                parallelogram: [ {x: cx-50, y: cy-60}, {x: cx+110, y: cy-60}, {x: cx+50, y: cy+60}, {x: cx-110, y: cy+60} ],
+                trapezoid: [ {x: cx-40, y: cy-60}, {x: cx+60, y: cy-60}, {x: cx+110, y: cy+60}, {x: cx-110, y: cy+60} ],
+                general: [ {x: cx-80, y: cy-70}, {x: cx+90, y: cy-40}, {x: cx+60, y: cy+80}, {x: cx-100, y: cy+50} ]
+            };
+
+            const data = presets[type];
+            for (let i = 0; i < 4; i++) {
+                points[i].x = data[i].x;
+                points[i].y = data[i].y;
+            }
+            updateAndRender();
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'zh-HK' ? 'en' : 'zh-HK';
+            updateLanguageUI();
+        }
+
+        function updateLanguageUI() {
+            const p = i18n[currentLang];
+            document.getElementById('lang-toggle-btn').innerText = p.langBtn;
+            document.getElementById('app-title').innerText = p.appTitle;
+            document.getElementById('title-canvas').innerText = p.titleCanvas;
+            document.getElementById('canvas-hint').innerText = p.canvasHint;
+            document.getElementById('title-presets').innerText = p.titlePresets;
+            
+            document.getElementById('btn-square').innerText = p.btnSquare;
+            document.getElementById('btn-rectangle').innerText = p.btnRectangle;
+            document.getElementById('btn-rhombus').innerText = p.btnRhombus;
+            document.getElementById('btn-parallelogram').innerText = p.btnParallelogram;
+            document.getElementById('btn-trapezoid').innerText = p.btnTrapezoid;
+            document.getElementById('btn-general').innerText = p.btnGeneral;
+
+            document.getElementById('title-checklist').innerText = p.titleChecklist;
+            document.getElementById('text-para1').innerText = p.textPara1;
+            document.getElementById('text-para2').innerText = p.textPara2;
+            document.getElementById('text-eq-sides').innerText = p.textEqSides;
+            document.getElementById('text-right-angles').innerText = p.textRightAngles;
+
+            document.getElementById('title-identity').innerText = p.titleIdentity;
+            document.getElementById('tag-quad').innerText = p.tagQuad;
+            document.getElementById('tag-trapezoid').innerText = p.tagTrapezoid;
+            document.getElementById('tag-parallelogram').innerText = p.tagParallelogram;
+            document.getElementById('tag-rectangle').innerText = p.tagRectangle;
+            document.getElementById('tag-rhombus').innerText = p.tagRhombus;
+            document.getElementById('tag-square').innerText = p.tagSquare;
+
+            document.getElementById('vtext-quad').textContent = p.tagQuad;
+            document.getElementById('vtext-trapezoid').textContent = p.tagTrapezoid;
+            document.getElementById('vtext-parallelogram').textContent = p.tagParallelogram;
+            document.getElementById('vtext-rectangle').textContent = p.tagRectangle;
+            document.getElementById('vtext-rhombus').textContent = p.tagRhombus;
+            document.getElementById('vtext-square').textContent = p.tagSquare;
+
+            document.getElementById('title-mission').innerText = p.titleMission;
+            document.getElementById('btn-verify').innerText = p.verifyBtn;
+
+            updateMissionText();
+        }
+
+        function updateMissionText() {
+            document.getElementById('mission-content').innerText = i18n[currentLang].missions[currentMissionIdx].text;
+        }
+
+        function changeMission(step) {
+            currentMissionIdx = (currentMissionIdx + step + i18n[currentLang].missions.length) % i18n[currentLang].missions.length;
+            updateMissionText();
+        }
+
+        function verifyMission() {
+            const currentMission = i18n[currentLang].missions[currentMissionIdx];
+            let isPassed = false;
+
+            if (currentMission.type === "parallelogram_not_rect") {
+                isPassed = currentIdentities.parallelogram && !currentIdentities.rectangle;
+            } else if (currentMission.type === "is_square") {
+                isPassed = currentIdentities.square;
+            } else if (currentMission.type === "is_trapezoid") {
+                isPassed = currentIdentities.trapezoid;
+            }
+
+            alert(isPassed ? i18n[currentLang].success : i18n[currentLang].fail);
+        }
+
+        // Geometry Helpers
+        function getDistance(p1, p2) {
+            return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+        }
+
+        function getAngle(pCenter, p1, p2) {
+            let v1 = { x: p1.x - pCenter.x, y: p1.y - pCenter.y };
+            let v2 = { x: p2.x - pCenter.x, y: p2.y - pCenter.y };
+            let dot = v1.x * v2.x + v1.y * v2.y;
+            let cross = v1.x * v2.y - v1.y * v2.x;
+            return Math.abs(Math.atan2(cross, dot) * 180 / Math.PI);
+        }
+
+        function areParallel(p1, p2, p3, p4, tolerance = 7) {
+            let v1 = { x: p2.x - p1.x, y: p2.y - p1.y };
+            let v2 = { x: p3.x - p4.x, y: p3.y - p4.y };
+            let len1 = Math.sqrt(v1.x*v1.x + v1.y*v1.y);
+            let len2 = Math.sqrt(v2.x*v2.x + v2.y*v2.y);
+            if (len1 === 0 || len2 === 0) return false;
+            let sinAngle = Math.abs(v1.x * v2.y - v1.y * v2.x) / (len1 * len2);
+            return sinAngle < (tolerance * Math.PI / 180);
+        }
+
+        function analyzeGeometry() {
+            let d01 = getDistance(points[0], points[1]);
+            let d12 = getDistance(points[1], points[2]);
+            let d23 = getDistance(points[2], points[3]);
+            let d30 = getDistance(points[3], points[0]);
+
+            let topBotParallel = areParallel(points[0], points[1], points[2], points[3]);
+            let leftRightParallel = areParallel(points[1], points[2], points[3], points[0]);
+
+            currentFeatures.twoPairsParallel = topBotParallel && leftRightParallel;
+            currentFeatures.onePairParallel = (topBotParallel || leftRightParallel) && !currentFeatures.twoPairsParallel;
+
+            let sideTolerance = 10;
+            let avgSide = (d01 + d12 + d23 + d30) / 4;
+            currentFeatures.allSidesEqual = (
+                Math.abs(d01 - avgSide) < sideTolerance &&
+                Math.abs(d12 - avgSide) < sideTolerance &&
+                Math.abs(d23 - avgSide) < sideTolerance &&
+                Math.abs(d30 - avgSide) < sideTolerance
+            );
+
+            let a0 = getAngle(points[0], points[3], points[1]);
+            let a1 = getAngle(points[1], points[0], points[2]);
+            let a2 = getAngle(points[2], points[1], points[3]);
+            let a3 = getAngle(points[3], points[2], points[0]);
+
+            let angleTolerance = 7;
+            currentFeatures.allRightAngles = (
+                Math.abs(a0 - 90) < angleTolerance &&
+                Math.abs(a1 - 90) < angleTolerance &&
+                Math.abs(a2 - 90) < angleTolerance &&
+                Math.abs(a3 - 90) < angleTolerance
+            );
+
+            currentIdentities.quad = true;
+            currentIdentities.trapezoid = currentFeatures.onePairParallel;
+            currentIdentities.parallelogram = currentFeatures.twoPairsParallel;
+            currentIdentities.rectangle = currentFeatures.twoPairsParallel && currentFeatures.allRightAngles;
+            currentIdentities.rhombus = currentFeatures.twoPairsParallel && currentFeatures.allSidesEqual;
+            currentIdentities.square = currentFeatures.twoPairsParallel && currentFeatures.allSidesEqual && currentFeatures.allRightAngles;
+        }
+
+        function updateUIElements() {
+            updateChecklistItem('para1', currentFeatures.onePairParallel);
+            updateChecklistItem('para2', currentFeatures.twoPairsParallel);
+            updateChecklistItem('eq-sides', currentFeatures.allSidesEqual);
+            updateChecklistItem('right-angles', currentFeatures.allRightAngles);
+
+            updateIdentityElement('quad', currentIdentities.quad);
+            updateIdentityElement('trapezoid', currentIdentities.trapezoid);
+            updateIdentityElement('parallelogram', currentIdentities.parallelogram);
+            updateIdentityElement('rectangle', currentIdentities.rectangle);
+            updateIdentityElement('rhombus', currentIdentities.rhombus);
+            updateIdentityElement('square', currentIdentities.square);
+        }
+
+        function updateChecklistItem(id, isActive) {
+            const item = document.getElementById(`check-${id}`);
+            const icon = document.getElementById(`icon-${id}`);
+            if (isActive) {
+                item.classList.add('active');
+                icon.innerText = '✅';
+            } else {
+                item.classList.remove('active');
+                icon.innerText = '⬜';
+            }
+        }
+
+        function updateIdentityElement(id, isActive) {
+            const tag = document.getElementById(`tag-${id}`);
+            const vennRegion = document.getElementById(`v-${id}`);
+
+            if (isActive) {
+                tag.classList.add('active');
+                if (vennRegion) vennRegion.classList.add('active');
+            } else {
+                tag.classList.remove('active');
+                if (vennRegion) vennRegion.classList.remove('active');
+            }
+        }
+
+        function drawAngles() {
+            let angleTolerance = 7;
+            let corners = [
+                { c: points[0], p1: points[3], p2: points[1] },
+                { c: points[1], p1: points[0], p2: points[2] },
+                { c: points[2], p1: points[1], p2: points[3] },
+                { c: points[3], p1: points[2], p2: points[0] }
+            ];
+
+            corners.forEach(corner => {
+                let ang = getAngle(corner.c, corner.p1, corner.p2);
+                if (Math.abs(ang - 90) < angleTolerance) {
+                    ctx.save();
+                    ctx.strokeStyle = '#e74c3c';
+                    ctx.lineWidth = 2.5;
+                    
+                    let d1 = { x: corner.p1.x - corner.c.x, y: corner.p1.y - corner.c.y };
+                    let d2 = { x: corner.p2.x - corner.c.x, y: corner.p2.y - corner.c.y };
+                    let l1 = Math.sqrt(d1.x*d1.x + d1.y*d1.y);
+                    let l2 = Math.sqrt(d2.x*d2.x + d2.y*d2.y);
+                    let u1 = { x: d1.x / l1, y: d1.y / l1 };
+                    let u2 = { x: d2.x / l2, y: d2.y / l2 };
+                    
+                    let size = 14;
+                    let pt1 = { x: corner.c.x + u1.x * size, y: corner.c.y + u1.y * size };
+                    let pt2 = { x: corner.c.x + u2.x * size, y: corner.c.y + u2.y * size };
+                    let pt3 = { x: pt1.x + u2.x * size, y: pt1.y + u2.y * size };
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(pt1.x, pt1.y);
+                    ctx.lineTo(pt3.x, pt3.y);
+                    ctx.lineTo(pt2.x, pt2.y);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            });
+        }
+
+        function drawShape() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Grid
+            ctx.strokeStyle = '#eaeaea';
+            ctx.lineWidth = 1;
+            for(let x=0; x<canvas.width; x+=25) {
+                ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke();
+            }
+            for(let y=0; y<canvas.height; y+=25) {
+                ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke();
+            }
+
+            // Polygon
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < 4; i++) ctx.lineTo(points[i].x, points[i].y);
+            ctx.closePath();
+            
+            ctx.fillStyle = 'rgba(74, 144, 226, 0.15)';
+            if (currentIdentities.square) ctx.fillStyle = 'rgba(46, 204, 113, 0.25)';
+            else if (currentIdentities.rectangle) ctx.fillStyle = 'rgba(52, 152, 219, 0.25)';
+            else if (currentIdentities.rhombus) ctx.fillStyle = 'rgba(241, 196, 15, 0.25)';
+            else if (currentIdentities.parallelogram) ctx.fillStyle = 'rgba(155, 89, 182, 0.25)';
+            else if (currentIdentities.trapezoid) ctx.fillStyle = 'rgba(230, 126, 34, 0.25)';
+            
+            ctx.fill();
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            drawAngles();
+
+            // Drag Points
+            points.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, pointRadius, 0, 2 * Math.PI);
+                ctx.fillStyle = '#e74c3c';
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+            });
+        }
+
+        function updateAndRender() {
+            analyzeGeometry();
+            updateUIElements();
+            drawShape();
+        }
+
+        // Pointer/Touch Events for Mobile + Desktop Unified handling
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * (canvas.width / rect.width),
+                y: (clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        function handleStart(e) {
+            const pos = getPos(e);
+            for (let i = 0; i < 4; i++) {
+                if (getDistance(pos, points[i]) < pointRadius + 15) { // 增加觸控檢測範圍
+                    activePoint = points[i];
+                    activePoint.isDragging = true;
+                    e.preventDefault();
+                    break;
+                }
+            }
+        }
+
+        function handleMove(e) {
+            if (!activePoint) return;
+            const pos = getPos(e);
+            activePoint.x = Math.max(15, Math.min(canvas.width - 15, pos.x));
+            activePoint.y = Math.max(15, Math.min(canvas.height - 15, pos.y));
+            updateAndRender();
+            e.preventDefault();
+        }
+
+        function handleEnd() {
+            if (activePoint) {
+                activePoint.isDragging = false;
+                activePoint = null;
+            }
+        }
+
+        // Mouse Listeners
+        canvas.addEventListener('mousedown', handleStart);
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleEnd);
+
+        // Touch Listeners for Mobile
+        canvas.addEventListener('touchstart', handleStart, {passive: false});
+        window.addEventListener('touchmove', handleMove, {passive: false});
+        window.addEventListener('touchend', handleEnd);
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            updateAndRender();
+        });
+
+        // Initialize
+        updateLanguageUI();
+        setPreset('general');
+
+    </script>
+</body>
+</html>

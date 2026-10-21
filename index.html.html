@@ -118,7 +118,7 @@
             border: 2px dashed #ccc;
             border-radius: 8px;
             overflow: hidden;
-            touch-action: none; /* 防止手機拖動時觸發滾動 */
+            touch-action: none;
         }
 
         canvas {
@@ -219,7 +219,7 @@
 
         .venn-svg {
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
             height: auto;
         }
 
@@ -230,14 +230,13 @@
         }
 
         .venn-text {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: bold;
             pointer-events: none;
             text-anchor: middle;
             dominant-baseline: middle;
         }
 
-        /* Dynamic venn active styles */
         .venn-area.active {
             fill-opacity: 0.65 !important;
             stroke-width: 3px !important;
@@ -296,7 +295,7 @@
     </header>
 
     <div class="main-container">
-        <!-- Left Panel: Canvas and Presets -->
+        <!-- Left Panel -->
         <div class="left-panel">
             <div class="card">
                 <div class="card-title">
@@ -321,7 +320,7 @@
             </div>
         </div>
 
-        <!-- Right Panel: Checklist, Venn Diagram & Missions -->
+        <!-- Right Panel -->
         <div class="right-panel">
             <div class="card">
                 <div class="card-title" id="title-checklist">🔍 幾何特徵實時掃描</div>
@@ -356,32 +355,33 @@
                     <div class="identity-tag square" id="tag-square">正方形</div>
                 </div>
 
-                <!-- Interactive SVG Venn Diagram -->
+                <!-- Interactive Venn Diagram -->
                 <div class="venn-container">
-                    <svg class="venn-svg" viewBox="0 0 360 220">
-                        <!-- Outer Quad Box -->
-                        <rect id="v-quad" class="venn-area" x="5" y="5" width="350" height="210" rx="10" fill="#7f8c8d" stroke="#7f8c8d"/>
-                        <text x="20" y="22" class="venn-text" fill="#2c3e50" text-anchor="start" id="vtext-quad">四邊形</text>
+                    <svg class="venn-svg" viewBox="0 0 380 230">
+                        <!-- Quad Box -->
+                        <rect id="v-quad" class="venn-area" x="5" y="5" width="370" height="220" rx="10" fill="#7f8c8d" stroke="#7f8c8d"/>
+                        <!-- Top-centered Quadrilateral Heading -->
+                        <text x="190" y="22" class="venn-text" fill="#2c3e50" text-anchor="middle" id="vtext-quad">四邊形</text>
 
-                        <!-- Trapezoid (Disjoint set within Quads) -->
-                        <rect id="v-trapezoid" class="venn-area" x="15" y="35" width="70" height="170" rx="8" fill="#e67e22" stroke="#e67e22"/>
-                        <text x="50" y="120" class="venn-text" fill="#d35400" id="vtext-trapezoid">梯形</text>
+                        <!-- Trapezium -->
+                        <rect id="v-trapezoid" class="venn-area" x="15" y="35" width="65" height="180" rx="8" fill="#e67e22" stroke="#e67e22"/>
+                        <text x="47" y="125" class="venn-text" fill="#d35400" id="vtext-trapezoid">梯形</text>
 
-                        <!-- Parallelogram Container -->
-                        <rect id="v-parallelogram" class="venn-area" x="95" y="35" width="250" height="170" rx="8" fill="#9b59b6" stroke="#9b59b6"/>
-                        <text x="220" y="52" class="venn-text" fill="#8e44ad" id="vtext-parallelogram">平行四邊形</text>
+                        <!-- Parallelogram Box -->
+                        <rect id="v-parallelogram" class="venn-area" x="90" y="35" width="275" height="180" rx="8" fill="#9b59b6" stroke="#9b59b6"/>
+                        <text x="227" y="52" class="venn-text" fill="#8e44ad" id="vtext-parallelogram">平行四邊形</text>
 
                         <!-- Rectangle Circle -->
-                        <circle id="v-rectangle" class="venn-area" cx="170" cy="130" r="55" fill="#3498db" stroke="#3498db"/>
-                        <text x="145" y="130" class="venn-text" fill="#2980b9" id="vtext-rectangle">長方形</text>
+                        <circle id="v-rectangle" class="venn-area" cx="185" cy="135" r="68" fill="#3498db" stroke="#3498db"/>
+                        <text x="145" y="135" class="venn-text" fill="#1b4f72" id="vtext-rectangle">長方形</text>
 
                         <!-- Rhombus Circle -->
-                        <circle id="v-rhombus" class="venn-area" cx="270" cy="130" r="55" fill="#f1c40f" stroke="#f1c40f"/>
-                        <text x="295" y="130" class="venn-text" fill="#f39c12" id="vtext-rhombus">菱形</text>
+                        <circle id="v-rhombus" class="venn-area" cx="270" cy="135" r="68" fill="#f1c40f" stroke="#f1c40f"/>
+                        <text x="310" y="135" class="venn-text" fill="#7d6608" id="vtext-rhombus">菱形</text>
 
-                        <!-- Square Intersection Area -->
-                        <path id="v-square" class="venn-area" d="M 220,85 A 55,55 0 0,1 220,175 A 55,55 0 0,1 220,85 Z" fill="#2ecc71" stroke="#27ae60"/>
-                        <text x="220" y="130" class="venn-text" fill="#1e8449" id="vtext-square">正方形</text>
+                        <!-- Square Overlap Lens -->
+                        <path id="v-square" class="venn-area" d="M 227.5,79.2 A 68,68 0 0,1 227.5,190.8 A 68,68 0 0,1 227.5,79.2 Z" fill="#2ecc71" stroke="#27ae60"/>
+                        <text x="227.5" y="135" class="venn-text" fill="#145a32" id="vtext-square">正方形</text>
                     </svg>
                 </div>
             </div>
@@ -446,7 +446,7 @@
                 btnRectangle: 'Rectangle',
                 btnRhombus: 'Rhombus',
                 btnParallelogram: 'Parallelogram',
-                btnTrapezoid: 'Trapezoid',
+                btnTrapezoid: 'Trapezium',
                 btnGeneral: 'General Quad',
                 titleChecklist: '🔍 Feature Real-time Scanner',
                 textPara1: 'Only ONE pair of opposite sides is parallel',
@@ -455,7 +455,7 @@
                 textRightAngles: 'All 4 angles are right angles (90°)',
                 titleIdentity: '👑 Family Venn Diagram',
                 tagQuad: 'Quadrilateral',
-                tagTrapezoid: 'Trapezoid',
+                tagTrapezoid: 'Trapezium',
                 tagParallelogram: 'Parallelogram',
                 tagRectangle: 'Rectangle',
                 tagRhombus: 'Rhombus',
@@ -465,7 +465,7 @@
                 missions: [
                     { text: "[Mission 1] Master of Disguise: Transform the shape into a 'Parallelogram', but NOT a 'Rectangle'!", type: "parallelogram_not_rect" },
                     { text: "[Mission 2] Unlock All-Rounder: Make a perfect 'Square' and light up its Venn region!", type: "is_square" },
-                    { text: "[Mission 3] Mysterious Trapezoid: Transform so that 'only one pair of opposite sides is parallel'!", type: "is_trapezoid" }
+                    { text: "[Mission 3] Mysterious Trapezium: Transform so that 'only one pair of opposite sides is parallel'!", type: "is_trapezoid" }
                 ],
                 success: "🎉 Excellent! Challenge Successful!",
                 fail: "❌ Not quite there yet, tweak the points and try again!"
@@ -492,7 +492,7 @@
             { x: 100, y: 220, isDragging: false }
         ];
 
-        const pointRadius = 12; // 加大便於手機觸控
+        const pointRadius = 12;
         let activePoint = null;
 
         let currentFeatures = {
@@ -605,7 +605,6 @@
             alert(isPassed ? i18n[currentLang].success : i18n[currentLang].fail);
         }
 
-        // Geometry Helpers
         function getDistance(p1, p2) {
             return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
         }
@@ -798,7 +797,6 @@
             drawShape();
         }
 
-        // Pointer/Touch Events for Mobile + Desktop Unified handling
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -812,7 +810,7 @@
         function handleStart(e) {
             const pos = getPos(e);
             for (let i = 0; i < 4; i++) {
-                if (getDistance(pos, points[i]) < pointRadius + 15) { // 增加觸控檢測範圍
+                if (getDistance(pos, points[i]) < pointRadius + 15) {
                     activePoint = points[i];
                     activePoint.isDragging = true;
                     e.preventDefault();
@@ -837,12 +835,10 @@
             }
         }
 
-        // Mouse Listeners
         canvas.addEventListener('mousedown', handleStart);
         window.addEventListener('mousemove', handleMove);
         window.addEventListener('mouseup', handleEnd);
 
-        // Touch Listeners for Mobile
         canvas.addEventListener('touchstart', handleStart, {passive: false});
         window.addEventListener('touchmove', handleMove, {passive: false});
         window.addEventListener('touchend', handleEnd);
